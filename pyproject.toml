@@ -11,6 +11,7 @@ packages = [{include = "transformer_with_scratch"}]
 python = ">=3.10, <3.11"
 tensorflow-estimator = "^2.11.0"
 tensorflow = "^2.11.0"
+tensorflow-rocm = "^2.11.0.540"
 
 
 [build-system]
