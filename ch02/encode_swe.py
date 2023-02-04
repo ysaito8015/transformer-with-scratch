@@ -97,3 +97,32 @@ class SWEEncoder_ja:
                         result.append(self.swe['<|byte%d|>' % i])
                 pos = end
         return result
+
+    def decode(self, tokens, breakline='\n'):
+        words = []
+        byte_tokens = []
+        for i in tokens:
+            word = self.bpe[i][0]
+            if word[:6] == '<|byte' and word[-2:] == '|>':
+                words.append(bytearray(byte_tokens).decode('utf-8', errors='replace'))
+                byte_tokens = []
+                if word[:7] == '<|emoji' and word[-2:] == '|>':
+                    words.append(self.emoji['emoji_inv'][word])
+                elif word == '<SP>':
+                    words.append(' ')
+                elif word == '<BR>':
+                    words.append(breakline)
+                elif word == '<TAB>':
+                    words.append('\t')
+                elif word == '<BLOCK>':
+                    words.append('▀ ')
+                elif word == '<KIGOU>':
+                    words.append('|')
+                elif word == '<U2000U2BFF>':
+                    words.append('‖ ')
+                else:
+                    words.append(word)
+        if len(byte_tokens) > 0:
+            words.append(bytearray(byte_tokens).decode('utf-8', errors='replace'))
+        text = ''.join(words)
+        return text
