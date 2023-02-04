@@ -17,8 +17,21 @@ class SWEEncoder_ja:
 
     def encode(self, text, clean=False):
         def checkkigou(x):
+            e = x.encode()
+            if len(x) == 1 and len(e) == 2:
+                c = (int(e[0]) << 8) + int(e[1])
+                if (c >= 0xc2a1 and c <= 0xc2bf) or (c >= 0xc780 and c <= 0xc783) or \
+                   (c >= 0xcab9 and c <= 0xcbbf) or (c >= 0xcc80 and c <= 0xcda2):
+                    return True
+             return False 
 
         def checku2e(x):
+            e = x.encode()
+            if len(x) == 1 and len(e) == 3:
+                c = (int(e[0]) << 16) + (int(e[1]) << 8) + int(e[2])
+                if c >= 0xe28080 and c <= 0xe2b07f:
+                    return True
+            return False
 
         pos = 0
         result = []
