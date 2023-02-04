@@ -11,11 +11,46 @@ class SWEEncoder_ja:
                 self.swe[wd] = idx
         self.emoji = emoji
         self.maxlen = np.max([len(w) for w in self.swe.keys()])
+        self.content_repatter1 = re.compile(r"(https?|ftp)(:\/\/[-_\.!~*\'()a-zA-Z0-9;\/?:\@&=\+$,%#]+)")
+        self.content_repatter2 = re.compile(r"[A-Za-z0-9\._+]*@[\-_0-9A-Za-z]+(\.[A-Za-z]+)*")
+        self.content_repatter3 = re.compile(r'[\(]{0,1}[0-9]{2,4}[\)\-\(]{0,1}[0-9]{3,4}')
+        self.content_repatter4 = re.compile(r"([12]\d{3}[/\-年])*(0?[1-9]|1[0-2])[/\-月]((0?[1-9]|[12][0-9]|3[01])日?)*(\d{1,2}|:|\d{1,2}時|\d{1,2}分|\(日\)|\(月\)|\(火\)|\(水\)|\(木\)|\(金\)|\(土\)|㈰|㈪|㈫|㈬|㈭|㈮|㈯)*")
+        self.content_repatter5 = re.compile(r"(明治|大正|昭和|平成|令和|㍾|㍽|㍼|㍻|\u32ff)\d{1,2}年(0?[1-9]|1[0-2])[/\-月]((0?[1-9]|[12][0-9]|3[01])日?)*(\d{1,2}|:|\d{1,2}時|\d{1,2}分|\(日\)|\(月\)|\(火\)|\(水\)|\(木\)|\(金\)|\(土\)|㈰|㈪|㈫|㈬|㈭|㈮|㈯)*")
+        self.content_repatter6 = re.compile(r'((0|[1-9]\d*|[1-9]\d{0,2}(,\d{3})+)*億)*((0|[1-9]\d*|[1-9]\d{0,2}(,\d{3})+)*万)*((0|[1-9]\d*|[1-9]\d{0,2}(,\d{3})+)*千)*(0|[1-9]\d*|[1-9]\d{0,2}(,\d{3})+)*(千円|万円|千万円|円|千ドル|万ドル|千万ドル|ドル|千ユーロ|万ユーロ|千万ユーロ|ユーロ)+(\(税込\)|\(税抜\)|\+tax)*')
+        keisen = "─ ━ │ ┃ ┄ ┅ ┆ ┇ ┈ ┉ ┊ ┋ ┌ ┍ ┎ ┏ ┐ ┑ ┒ ┓ └ ┕ ┖ ┗ ┘ ┙ ┚ ┛ ├ ┝ ┞ ┟ ┠ ┡ ┢ ┣ ┤ ┥ ┦ ┧ ┨ ┩ ┪ ┫ ┬ ┭ ┮ ┯ ┰ ┱ ┲ ┳ ┴ ┵ ┶ ┷ ┸ ┹ ┺ ┻ ┼ ┽ ┾ ┿ ╀ ╁ ╂ ╃ ╄ ╅ ╆ ╇ ╈ ╉ ╊ ╋ ╌╍╎╏═ ║ ╒ ╓ ╔ ╕ ╖ ╗ ╘ ╙ ╚ ╛ ╜ ╝ ╞ ╟ ╠ ╡ ╢ ╣ ╤ ╥ ╦ ╧ ╨ ╩ ╪ ╫ ╬ ╭ ╮ ╯ ╰ ╱ ╲ ╳ ╴╵╶╷╸╹╺╻╼╽╾╿"
+        blocks = "▀ ▁ ▂ ▃ ▄ ▅ ▆ ▇ █ ▉ ▊ ▋ ▌ ▍ ▎ ▏ ▐░▒ ▓ ▔ ▕ ▖▗▘▙▚▛▜▝▞▟"
+        self.content_trans1 = str.maketrans({k: '<BLOCK>' for k in keisen+blocks})
 
     def __len__(self):
         return len(self.bpe)
 
+    def clean_text(self, content):
+        content = self.content_repatter1.sub("<URL>", content)
+        content = self.content_repatter2.sub("<EMAIL>", content)
+        content = self.content_repatter3.sub("<TEL>", content)
+        content = self.content_repatter4.sub("<DATE>", content)
+        content = self.content_repatter5.sub("<DATE>", content)
+        content = self.content_repatter6.sub("<PRICE>", content)
+        content = self.translate(self.content_trans1)
+        while '<BLOCK><BLOCK>' in content:
+            content = content.replace('<BLOCK><BLOCK>', '<BLOCK>')
+        return content
+
     def encode(self, text, clean=False):
+        text = text.replace(' ', '<SP>')
+        text = text.replace('　', '<SP>')
+        text = text.replace('\r\n', '<BR>')
+        text = text.replace('\n', '<BR>')
+        text = text.replace('\r', '<BR>')
+        text = text.replace('\t', '<TAB>')
+        text = text.replace('— ', 'ー')
+        text = text.replace('−', 'ー')
+        for k, v in self.emoji['emoji'].items():
+            if k in text:
+                text = text.replace(k, v)
+        if clean:
+            text = self.clean_text(text)
+
         def checkkigou(x):
             e = x.encode()
             if len(x) == 1 and len(e) == 2:
