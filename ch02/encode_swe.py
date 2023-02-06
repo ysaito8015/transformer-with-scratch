@@ -160,3 +160,36 @@ if __name__=='__main__':
     with open('emoji.json', encoding='utf-8') as f:
         emoji = json.loads(f.read())
     enc = SWEEncoder_ja(bpe, emoji)
+
+    # run as the other processes
+    array_file = []
+    def _proc(i):
+        token_chunks = []
+        raw_text = ''
+        for j, (curDir, dirs, files) in enumerate(array_file):
+            if not (j % args.num_process == i):
+                continue
+            print('append #', curDir)
+            for file in tqdm(files):
+                if file.endswith(".txt"):
+                    # encoding from input
+                    input = os.path.join(curDir, file)
+                    with open(input, 'r', encoding='utf-8') as fp:
+                        raw_text += fp.read()
+                    raw_text += '<|endoftext|>'
+                    # combine raw_text to token_chunks array
+                    if len(raw_text) >= args.combine:
+                        tokens = np.stack(enc.encode(raw_text, clean=args.clean_text))
+                        token_chunks.append(tokens)
+                        raw_text = ''
+                if raw_text and len(raw_text) > 0:
+                    tokens = np.stack(enc.encode(raw_text))
+                    token_chunks.append(tokens)
+                # write token_chunks to a pkl file with uuid
+                if len(token_chunks) > args.tmpsilze:
+                    with open(os.path.join(args.tmp_dir, '%s.pkl'%str(uuid.uuid4())), 'wb') as f:
+                        pickle.dump(token_chunks, f)
+                        token_chunks = []
+            # write token_chunks to a pkl file with uuid
+            with open(os.path.join(args.tmp_dir, '%s.pkl'%str(uuid.uuid4())), 'wb') as f:
+                pickle.dump(token_chunks, f)
