@@ -193,3 +193,24 @@ if __name__=='__main__':
             # write token_chunks to a pkl file with uuid
             with open(os.path.join(args.tmp_dir, '%s.pkl'%str(uuid.uuid4())), 'wb') as f:
                 pickle.dump(token_chunks, f)
+
+        # list up directories with pkl files
+        for curDir, dirs, files in os.walk(args.src_dir):
+            array_file.append((curDir, dirs, files))
+
+        # execure above processes
+        with Pool(args.num_process) as p:
+            p.map(_proc, list(range(args.num_process)))
+
+        # assenble pickle files to an array
+        token_chunks = []
+        for s in os.listdir(args.tmp_dir):
+            with open(os.path.join(args.tmp_dir, s), 'rb') as f:
+                token_chunks.extend(pickle.load(f))
+
+        # save the array to NPZ style
+        np.savez_compressed(args.dst_file, *token_chunks)
+        shutil.rmtree(args.tmp_dir)
+
+
+
