@@ -126,3 +126,37 @@ class SWEEncoder_ja:
             words.append(bytearray(byte_tokens).decode('utf-8', errors='replace'))
         text = ''.join(words)
         return text
+
+
+if __name__=='__main__':
+    import argparse
+    import shutil
+    import os
+    import json
+    from tqdm import tqdm
+    import pickle
+    import uuid
+    from multiprocessing import Pool
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--src_dir", help="source dir", required=True)
+    parser.add_argument("--dst_file", help="destination file", required=True)
+    parser.add_argument("--tmp-dir", help="tempolary file", default="tmpfiles")
+    parser.add_argument("--vocabulary", help="vocabulary file", default="ja-swe32k.txt")
+    parser.add_argument("--num_process", help="process num", type=int, default=8)
+    parser.add_argument("--combine", help="Concatenate files with <|endoftext|> separator into chuncks of this minimum size", type=int, default=50000)
+    parser.add_argument("--clean_text", action='store_true')
+    parser.add_argument("--tmpsilze", help="num chuncks in tempolary file", type=int, default=5000)
+    args = parser.parse_args()
+
+    # make tmpolary directory
+    if os.path.isdir(args.tmp_dir):
+        shutil.rmtree(args.tmp_dir)
+    os.mkdir(args.tmp_dir)
+
+    # make new encoder
+    with open(args.vocabulary, encoding='utf-8') as f:
+        bpe = f.read().split('\n')
+    with open('emoji.json', encoding='utf-8') as f:
+        emoji = json.loads(f.read())
+    enc = SWEEncoder_ja(bpe, emoji)
