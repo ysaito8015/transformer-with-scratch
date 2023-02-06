@@ -13,13 +13,13 @@ class SWEEncoder_ja:
         self.maxlen = np.max([len(w) for w in self.swe.keys()])
         self.content_repatter1 = re.compile(r"(https?|ftp)(:\/\/[-_\.!~*\'()a-zA-Z0-9;\/?:\@&=\+$,%#]+)")
         self.content_repatter2 = re.compile(r"[A-Za-z0-9\._+]*@[\-_0-9A-Za-z]+(\.[A-Za-z]+)*")
-        self.content_repatter3 = re.compile(r'[\(]{0,1}[0-9]{2,4}[\)\-\(]{0,1}[0-9]{3,4}')
+        self.content_repatter3 = re.compile(r'[\(]{0,1}[0-9]{2,4}[\)\-\(]{0,1}[0-9]{2,4}[\)\-]{0,1}[0-9]{3,4}')
         self.content_repatter4 = re.compile(r"([12]\d{3}[/\-年])*(0?[1-9]|1[0-2])[/\-月]((0?[1-9]|[12][0-9]|3[01])日?)*(\d{1,2}|:|\d{1,2}時|\d{1,2}分|\(日\)|\(月\)|\(火\)|\(水\)|\(木\)|\(金\)|\(土\)|㈰|㈪|㈫|㈬|㈭|㈮|㈯)*")
-        self.content_repatter5 = re.compile(r"(明治|大正|昭和|平成|令和|㍾|㍽|㍼|㍻|\u32ff)\d{1,2}年(0?[1-9]|1[0-2])[/\-月]((0?[1-9]|[12][0-9]|3[01])日?)*(\d{1,2}|:|\d{1,2}時|\d{1,2}分|\(日\)|\(月\)|\(火\)|\(水\)|\(木\)|\(金\)|\(土\)|㈰|㈪|㈫|㈬|㈭|㈮|㈯)*")
+        self.content_repatter5 = re.compile(r"(明治|大正|昭和|平成|令和|㍾|㍽|㍼|㍻|\u32ff)\d{1,2}年(0?[1-9]|1[0-2])月(0?[1-9]|[12][0-9]|3[01])日(\d{1,2}|:|\d{1,2}時|\d{1,2}分|\(日\)|\(月\)|\(火\)|\(水\)|\(木\)|\(金\)|\(土\)|㈰|㈪|㈫|㈬|㈭|㈮|㈯)*")
         self.content_repatter6 = re.compile(r'((0|[1-9]\d*|[1-9]\d{0,2}(,\d{3})+)*億)*((0|[1-9]\d*|[1-9]\d{0,2}(,\d{3})+)*万)*((0|[1-9]\d*|[1-9]\d{0,2}(,\d{3})+)*千)*(0|[1-9]\d*|[1-9]\d{0,2}(,\d{3})+)*(千円|万円|千万円|円|千ドル|万ドル|千万ドル|ドル|千ユーロ|万ユーロ|千万ユーロ|ユーロ)+(\(税込\)|\(税抜\)|\+tax)*')
-        keisen = "─ ━ │ ┃ ┄ ┅ ┆ ┇ ┈ ┉ ┊ ┋ ┌ ┍ ┎ ┏ ┐ ┑ ┒ ┓ └ ┕ ┖ ┗ ┘ ┙ ┚ ┛ ├ ┝ ┞ ┟ ┠ ┡ ┢ ┣ ┤ ┥ ┦ ┧ ┨ ┩ ┪ ┫ ┬ ┭ ┮ ┯ ┰ ┱ ┲ ┳ ┴ ┵ ┶ ┷ ┸ ┹ ┺ ┻ ┼ ┽ ┾ ┿ ╀ ╁ ╂ ╃ ╄ ╅ ╆ ╇ ╈ ╉ ╊ ╋ ╌╍╎╏═ ║ ╒ ╓ ╔ ╕ ╖ ╗ ╘ ╙ ╚ ╛ ╜ ╝ ╞ ╟ ╠ ╡ ╢ ╣ ╤ ╥ ╦ ╧ ╨ ╩ ╪ ╫ ╬ ╭ ╮ ╯ ╰ ╱ ╲ ╳ ╴╵╶╷╸╹╺╻╼╽╾╿"
-        blocks = "▀ ▁ ▂ ▃ ▄ ▅ ▆ ▇ █ ▉ ▊ ▋ ▌ ▍ ▎ ▏ ▐░▒ ▓ ▔ ▕ ▖▗▘▙▚▛▜▝▞▟"
-        self.content_trans1 = str.maketrans({k: '<BLOCK>' for k in keisen+blocks})
+        keisen = "─━│┃┄┅┆┇┈┉┊┋┌┍┎┏┐┑┒┓└┕┖┗┘┙┚┛├┝┞┟┠┡┢┣┤┥┦┧┨┩┪┫┬┭┮┯┰┱┲┳┴┵┶┷┸┹┺┻┼┽┾┿╀╁╂╃╄╅╆╇╈╉╊╋╌╍╎╏═║╒╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡╢╣╤╥╦╧╨╩╪╫╬╭╮╯╰╱╲╳╴╵╶╷╸╹╺╻╼╽╾╿"
+        blocks = "▀▁▂▃▄▅▆▇█▉▊▋▌▍▎▏▐░▒▓▔▕▖▗▘▙▚▛▜▝▞▟"
+        self.content_trans1 = str.maketrans({k:'<BLOCK>' for k in keisen+blocks})
 
     def __len__(self):
         return len(self.bpe)
@@ -31,7 +31,7 @@ class SWEEncoder_ja:
         content = self.content_repatter4.sub("<DATE>", content)
         content = self.content_repatter5.sub("<DATE>", content)
         content = self.content_repatter6.sub("<PRICE>", content)
-        content = self.translate(self.content_trans1)
+        content = content.translate(self.content_trans1)
         while '<BLOCK><BLOCK>' in content:
             content = content.replace('<BLOCK><BLOCK>', '<BLOCK>')
         return content
@@ -43,7 +43,7 @@ class SWEEncoder_ja:
         text = text.replace('\n', '<BR>')
         text = text.replace('\r', '<BR>')
         text = text.replace('\t', '<TAB>')
-        text = text.replace('— ', 'ー')
+        text = text.replace('—', 'ー')
         text = text.replace('−', 'ー')
         for k, v in self.emoji['emoji'].items():
             if k in text:
@@ -58,7 +58,7 @@ class SWEEncoder_ja:
                 if (c >= 0xc2a1 and c <= 0xc2bf) or (c >= 0xc780 and c <= 0xc783) or \
                    (c >= 0xcab9 and c <= 0xcbbf) or (c >= 0xcc80 and c <= 0xcda2):
                     return True
-             return False 
+            return False
 
         def checku2e(x):
             e = x.encode()
@@ -104,8 +104,11 @@ class SWEEncoder_ja:
         for i in tokens:
             word = self.bpe[i][0]
             if word[:6] == '<|byte' and word[-2:] == '|>':
-                words.append(bytearray(byte_tokens).decode('utf-8', errors='replace'))
-                byte_tokens = []
+                byte_tokens.append(int(word[6:-2]))
+            else:
+                if len(byte_tokens) > 0:
+                    words.append(bytearray(byte_tokens).decode('utf-8', errors='replace'))
+                    byte_tokens = []
                 if word[:7] == '<|emoji' and word[-2:] == '|>':
                     words.append(self.emoji['emoji_inv'][word])
                 elif word == '<SP>':
@@ -115,11 +118,11 @@ class SWEEncoder_ja:
                 elif word == '<TAB>':
                     words.append('\t')
                 elif word == '<BLOCK>':
-                    words.append('▀ ')
+                    words.append('▀')
                 elif word == '<KIGOU>':
-                    words.append('|')
+                    words.append('ǀ')
                 elif word == '<U2000U2BFF>':
-                    words.append('‖ ')
+                    words.append('‖')
                 else:
                     words.append(word)
         if len(byte_tokens) > 0:
@@ -141,12 +144,12 @@ if __name__=='__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--src_dir", help="source dir", required=True)
     parser.add_argument("--dst_file", help="destination file", required=True)
-    parser.add_argument("--tmp-dir", help="tempolary file", default="tmpfiles")
+    parser.add_argument("--tmp_dir", help="tempolary file", default="tmpfiles")
     parser.add_argument("--vocabulary", help="vocabulary file", default="ja-swe32k.txt")
     parser.add_argument("--num_process", help="process num", type=int, default=8)
     parser.add_argument("--combine", help="Concatenate files with <|endoftext|> separator into chuncks of this minimum size", type=int, default=50000)
     parser.add_argument("--clean_text", action='store_true')
-    parser.add_argument("--tmpsilze", help="num chuncks in tempolary file", type=int, default=5000)
+    parser.add_argument("--tmpsilze", help="num chunks in tempolary file", type=int, default=5000)
     args = parser.parse_args()
 
     # make tmpolary directory
@@ -163,6 +166,7 @@ if __name__=='__main__':
 
     # run as the other processes
     array_file = []
+
     def _proc(i):
         token_chunks = []
         raw_text = ''
@@ -182,35 +186,32 @@ if __name__=='__main__':
                         tokens = np.stack(enc.encode(raw_text, clean=args.clean_text))
                         token_chunks.append(tokens)
                         raw_text = ''
-                if raw_text and len(raw_text) > 0:
-                    tokens = np.stack(enc.encode(raw_text))
-                    token_chunks.append(tokens)
-                # write token_chunks to a pkl file with uuid
-                if len(token_chunks) > args.tmpsilze:
-                    with open(os.path.join(args.tmp_dir, '%s.pkl'%str(uuid.uuid4())), 'wb') as f:
-                        pickle.dump(token_chunks, f)
-                        token_chunks = []
+            if raw_text and len(raw_text) > 0:
+                tokens = np.stack(enc.encode(raw_text))
+                token_chunks.append(tokens)
             # write token_chunks to a pkl file with uuid
-            with open(os.path.join(args.tmp_dir, '%s.pkl'%str(uuid.uuid4())), 'wb') as f:
-                pickle.dump(token_chunks, f)
+            if len(token_chunks) > args.tmpsilze:
+                with open(os.path.join(args.tmp_dir, '%s.pkl'%str(uuid.uuid4())), 'wb') as f:
+                    pickle.dump(token_chunks, f)
+                    token_chunks = []
+        # write token_chunks to a pkl file with uuid
+        with open(os.path.join(args.tmp_dir, '%s.pkl'%str(uuid.uuid4())), 'wb') as f:
+            pickle.dump(token_chunks, f)
 
-        # list up directories with pkl files
-        for curDir, dirs, files in os.walk(args.src_dir):
-            array_file.append((curDir, dirs, files))
+    # list up directories with pkl files
+    for curDir, dirs, files in os.walk(args.src_dir):
+        array_file.append((curDir, dirs, files))
 
-        # execure above processes
-        with Pool(args.num_process) as p:
-            p.map(_proc, list(range(args.num_process)))
+    # execure above processes
+    with Pool(args.num_process) as p:
+        p.map(_proc, list(range(args.num_process)))
 
-        # assenble pickle files to an array
-        token_chunks = []
-        for s in os.listdir(args.tmp_dir):
-            with open(os.path.join(args.tmp_dir, s), 'rb') as f:
-                token_chunks.extend(pickle.load(f))
+    # assenble pickle files to an array
+    token_chunks = []
+    for s in os.listdir(args.tmp_dir):
+        with open(os.path.join(args.tmp_dir, s), 'rb') as f:
+            token_chunks.extend(pickle.load(f))
 
-        # save the array to NPZ style
-        np.savez_compressed(args.dst_file, *token_chunks)
-        shutil.rmtree(args.tmp_dir)
-
-
-
+    # save the array to NPZ style
+    np.savez_compressed(args.dst_file, *token_chunks)
+    shutil.rmtree(args.tmp_dir)
